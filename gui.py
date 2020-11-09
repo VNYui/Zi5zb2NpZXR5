@@ -77,6 +77,7 @@ def screen1():
        o888o   8""888P' `Y8bod8P' `Y8bod8P' o888o `Y8bod8P'   "888"      d8'
                                                                     .o...P' """, style="bold red")
     return console
+
 def screen2():
     global h
     h = dict()
@@ -98,8 +99,8 @@ def screen4():
     started_IA = False
     if 'IA' in m:
         console.print('Starting IA...')
-        #scanner.main(h)
-        toolkit.main(h)
+        scanner.main(h)
+        #toolkit.main(h)
     elif 'MANUAL' in m:
         screen5()
     elif 'LOAD' in m:

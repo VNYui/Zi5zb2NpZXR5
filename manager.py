@@ -1,5 +1,7 @@
 import pickle
 import os
+import scanner
+
 """
 def check():
     if os.path.isfile('*.pickle'):
@@ -9,7 +11,7 @@ def check():
 
 """
 
-def create(s1):
+def create(s1,s2):
     global scan_top
     global scan_dns
     global scan_list
@@ -20,10 +22,10 @@ def create(s1):
     scan_top = open("bd/scan_top.pickle", "wb")
     pickle.dump(s1, scan_top)
     return scan_top
-"""
+
     scan_dns = open("bd/scan_dns.pickle", "wb")
     pickle.dump(s2, scan_dns)
-
+    """
     scan_list = open("bd/scan_list.pickle", "wb")
     pickle.dump(s3, scan_list)
 
@@ -45,8 +47,8 @@ def restore():
     s4 = pickle.load(scan_os)
     s5 = pickle.load(scan_subnet)
     s6 = pickle.load(scan_version)"""
-    print(s1)
-    return s1,s2,s3,s4,s5,s6
+    scanner.parse_top(s1)
+    return s1
 
 def explorer():
     pass

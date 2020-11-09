@@ -15,7 +15,7 @@ def scan_top(h):
     for i in bar(range(100)):
         s1 = nm.scan_top_ports('{}'.format(h))
         time.sleep(0.2)
-    parse()
+    parse_top(s1)
     return s1
 
 def scan_dns(h):
@@ -23,10 +23,12 @@ def scan_dns(h):
     global s2
     bar = progressbar.ProgressBar()
     nm = nmap3.Nmap()
-    for i in bar(range(100)):
-        s2 = nm.nmap_dns_brute_script('{}'.format(h))
-        time.sleep(0.5)
+
+    s2 = nm.nmap_dns_brute_script(f'{h}')
+
+    parse_dns(s2)
     return s2
+
 def scan_list(h):
     global nm
     global s3
@@ -36,6 +38,7 @@ def scan_list(h):
         s3 = nm.nmap_list_scan('{}'.format(h))
         time.sleep(0.5)
     return s3
+
 def scan_os(h):
     global nm
     global s4
@@ -66,20 +69,28 @@ def scan_vers(h):
         time.sleep(0.5)
     return s6
 
-def parse():
+def parse_top(s1):
+    global console
+    #init console log
+    console = Console()
     #RETRIEVE KEY FROM NESTED DICT
-    console.print("TOP PORTS SCAN :", style="bold red")
     hosts = nested_lookup('host', s1)
     portid = nested_lookup('portid', s1)
     state = nested_lookup('state', s1)
     protocol = nested_lookup('protocol', s1)
     service = nested_lookup('service', s1)
     reason = nested_lookup('reason', s1)
-
+    console.print(f"TOP PORTS SCAN : {hosts[1]}", style="bold red")
     #PARSING PORT / STATE / PROTO / SERVICES / REASON
     for (p,s,proto, serv, res) in zip(portid, state, protocol, service,reason):
-        print('{} : {} : {} : {} : {}'.format(p, s, proto,serv['name'], res))
+        console.print(f"{p} : {s} : {proto} : {serv['name']} : {res}")
     return p,s,proto,serv,res
+
+def parse_dns(s2):
+    console.print('Brute Forcing dns..')
+    dns_bruted = nested_lookup('address', s2)
+    bruted_hostname = nested_lookup('hostname', s2)
+    console.print(f"{dns_bruted[1]} : {bruted_hostname[1]}")
 
 """def debug():
     print(s1)
@@ -93,12 +104,12 @@ def main(h):
     global console
     console = Console()
     scan_top(h)
-    """scan_dns(h)
-    scan_list(h)
+    scan_dns(h)
+    """scan_list(h)
     scan_os(h)
     scan_subnet(h)
     scan_vers(h)"""
-    manager.create(s1)
+    manager.create(s1,s2)
     #debug()
 if __name__ == '__main__':
     main()

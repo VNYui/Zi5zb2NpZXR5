@@ -14,18 +14,19 @@ def amplified(h):
     try:
         answer = myResolver.query('version.bind','TXT','CH') #Le troisième paramètre "CH" permet d'utiliser la classe CHAOS
     except:
-        print("Impossible de récupérer la version du serveur")
+        print("\nImpossible de récupérer la version du serveur")
     else:
         print("Réponse du serveur :")
         for rdata in answer:
             print(rdata.to_text())
+
 def dns_zone(h):
     try:
         z = dns.zone.from_xfr(dns.query.xfr('nsztm2.digi.ninja',h))
     except:
-        print("Echec du tranfert")
+        print("\nEchec du tranfert : Serveur non vulnérable au transfert de zone\n")
     else:
-        print("Succès du transfert")
+        print("\nSuccès du transfert : Serveur vulnerable au transfert de zone\n")
         names = z.nodes.keys()
         for n in names:
             print(z[n].to_text(n))
@@ -41,10 +42,10 @@ def main(h):
                 answer = dns.resolver.query(n,'NS')
             except dns.resolver.NoAnswer:
                 #On a pas trouvé d'enregistrement, on ignore l'exception et on continue
-                print("Aucun enregistrement NS trouvé pour "+n.to_text()+", tentative avec le parent.")
+                print("\nAucun enregistrement NS trouvé pour "+n.to_text()+", tentative avec le parent.")
             else:
                 #Aucune exception levée, on a trouvé un enregistrement NS
-                print("Enregistrement NS trouvé pour le domaine "+n.to_text())
+                print("\nEnregistrement NS trouvé pour le domaine "+n.to_text())
                 for rdata in answer:
                     s = socket.gethostbyname(rdata.to_text())
                     r = requests.get("http://ip-api.com/json/{}".format(h))
@@ -62,7 +63,7 @@ def main(h):
         print("Aucun serveur NS trouvé")
     amplified(h)
     dns_zone(h)
-    server.run()
+    #server.run()
 
 if __name__ == '__main__':
     main()
