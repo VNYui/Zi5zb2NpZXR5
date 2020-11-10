@@ -1,3 +1,7 @@
-progressbar
 dnspython
+naked
+PyInquirer
+rich
+progressbar
+nested_lookup
 naked

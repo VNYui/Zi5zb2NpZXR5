@@ -8,7 +8,8 @@ from nested_lookup import nested_lookup
 import scanner
 import manager
 import toolkit
-
+import server
+import threading
 #MODELS :
 
 style = style_from_dict({
@@ -98,9 +99,11 @@ def screen3():
 def screen4():
     started_IA = False
     if 'IA' in m:
-        console.print('Starting IA...')
-        scanner.main(h)
-        #toolkit.main(h)
+        console.print('Starting IA...', style='bold red')
+        t1 = threading.Thread(target=server.run)
+        t1.start()
+        toolkit.main(h)
+        scanner.main(h,m)
     elif 'MANUAL' in m:
         screen5()
     elif 'LOAD' in m:
@@ -113,14 +116,6 @@ def screen5():
     for v in a.values():
         a = v
         console.print(a)
-
-def debug_screen():
-    console.print('Host :',h, style='bold green')
-    console.print(type(h), style='bold red')
-    console.print('Mode :',m,style='bold green')
-    console.print(type(m),style='bold red')
-    #console.print('Args :',a,style='bold green')
-    #console.print(type(a),style='bold red')
 
 def main():
     #RUN

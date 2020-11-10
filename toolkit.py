@@ -5,8 +5,10 @@ import requests
 from nested_lookup import nested_lookup
 from Naked.toolshed.shell import execute_js, muterun_js
 import server
+from rich.console import Console
 
 def amplified(h):
+    console = Console()
     myResolver = dns.resolver.Resolver() #La création d'un résolveur personnalisé permet d'utiliser l'adresse de notre cible comme résolveur
     myResolver.timeout = 5
     myResolver.lifetime = 5
@@ -14,17 +16,18 @@ def amplified(h):
     try:
         answer = myResolver.query('version.bind','TXT','CH') #Le troisième paramètre "CH" permet d'utiliser la classe CHAOS
     except:
-        print("\nImpossible de récupérer la version du serveur")
+        console.print("\nImpossible de récupérer la version du serveur",style='bold red')
     else:
         print("Réponse du serveur :")
         for rdata in answer:
             print(rdata.to_text())
 
 def dns_zone(h):
+    console = Console()
     try:
         z = dns.zone.from_xfr(dns.query.xfr('nsztm2.digi.ninja',h))
     except:
-        print("\nEchec du tranfert : Serveur non vulnérable au transfert de zone\n")
+        console.print("\nEchec du tranfert : Serveur non vulnérable au transfert de zone\n",style='bold red')
     else:
         print("\nSuccès du transfert : Serveur vulnerable au transfert de zone\n")
         names = z.nodes.keys()
@@ -33,6 +36,7 @@ def dns_zone(h):
 
 def main(h):
     global s
+    console = Console()
     s = dict()
     n = dns.name.from_text(h)
     try:
@@ -42,10 +46,10 @@ def main(h):
                 answer = dns.resolver.query(n,'NS')
             except dns.resolver.NoAnswer:
                 #On a pas trouvé d'enregistrement, on ignore l'exception et on continue
-                print("\nAucun enregistrement NS trouvé pour "+n.to_text()+", tentative avec le parent.")
+                console.print("\nAucun enregistrement NS trouvé pour "+n.to_text()+", tentative avec le parent.", style="bold yellow")
             else:
                 #Aucune exception levée, on a trouvé un enregistrement NS
-                print("\nEnregistrement NS trouvé pour le domaine "+n.to_text())
+                console.print("\nEnregistrement NS trouvé pour le domaine "+n.to_text(),style="bold green")
                 for rdata in answer:
                     s = socket.gethostbyname(rdata.to_text())
                     r = requests.get("http://ip-api.com/json/{}".format(h))
@@ -54,13 +58,13 @@ def main(h):
                     #print(type(a))
                     lat = nested_lookup('lat', a)
                     lon = nested_lookup('lon',a)
-                    print(rdata.to_text()+'     {}      {}:{}'.format(s,lat,lon))
+                    console.print(rdata.to_text()+f'     {s}      {lat}:{lon}'.format(s,lat,lon))
                 break;
             #Si on arrive ici, c'est qu'on a pas trouvé, on réessaie avec le parent:
             n = n.parent()
     except dns.name.NoParent:
         #Cette exception est levée si le domaine n'a plus de parent, on a atteint la racine du DNS
-        print("Aucun serveur NS trouvé")
+        console.print("Aucun serveur NS trouvé",style='bold red')
     amplified(h)
     dns_zone(h)
     #server.run()
