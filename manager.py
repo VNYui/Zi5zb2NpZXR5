@@ -1,7 +1,8 @@
 import pickle
 import os
 import scanner
-
+import threading
+import server
 """
 def check():
     if os.path.isfile('*.pickle'):
@@ -48,6 +49,8 @@ def restore():
     scanner.parse_top(s1)
     scanner.parse_dns(s2)
     scanner.parse_os(s4)
+    t1 = threading.Thread(target=server.run())
+    t1.start()
     """s2 = pickle.load(scan_dns)
     s3 = pickle.load(scan_list)
     s4 = pickle.load(scan_os)

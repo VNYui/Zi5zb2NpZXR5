@@ -8,7 +8,7 @@ from rich.console import Console
 import manager
 import threading
 import anime
-
+import term
 from colorama import init,Fore, Back, Style
 
 
@@ -94,10 +94,36 @@ def parse_top(s1):
     reason = nested_lookup('reason', s1)
     #print(f"\nTOP PORTS SCAN : {hosts[1]}")
     #PARSING PORT / STATE / PROTO / SERVICES / REASON
+
     console.print("\nTOP PORTS SCAN :", style="bold red")
     for (p,s,proto, serv, res) in zip(portid, state, protocol, service,reason):
         #print(f"{p}\t{s}\t{proto}\t{serv['name']}\t{res}".expandtabs(20))
-        print('\033[31m' + f"{p}" + "\t" + Fore.WHITE + Fore.GREEN + f"{s}" +"\t" + Fore.WHITE + f"{proto}" + "\t" + Fore.BLUE + f"{serv['name']}" + "\t" + Fore.YELLOW + f"{res}".expandtabs(30))
+        if 'open' in s :
+            a = Fore.GREEN + p + Fore.RESET
+            b = Fore.GREEN + s + Fore.RESET
+            c = Fore.GREEN + proto + Fore.RESET
+            d = Fore.GREEN + serv['name'] + Fore.RESET
+            e = Fore.GREEN + res + Fore.RESET
+            print(a + "\t" + b + "\t" + c + "\t" + d + "\t" + e.expandtabs(10))
+            status = 'open'
+        else :
+            if 'closed' in s :
+                a = Fore.RED + p + Fore.RESET
+                b = Fore.RED + s + Fore.RESET
+                c = Fore.RED + proto + Fore.RESET
+                d = Fore.RED + serv['name'] + Fore.RESET
+                e = Fore.RED + res + Fore.RESET
+                print(a + "\t" + b + "\t" + c + "\t" + d + "\t" + e.expandtabs(10))
+                status = 'closed'
+            else :
+                a = Fore.YELLOW + p + Fore.RESET
+                b = Fore.YELLOW + s + Fore.RESET
+                c = Fore.YELLOW + proto + Fore.RESET
+                d = Fore.YELLOW + serv['name'] + Fore.RESET
+                e = Fore.YELLOW + res + Fore.RESET
+                print(a + "\t" + b + "\t" + c + "\t" + d + "\t" + e.expandtabs(10))
+                status = 'filtered'
+        #print('\033[31m' + f"{p}" + "\t" + Fore.WHITE + Fore.GREEN + f"{s}" +"\t" + Fore.WHITE + f"{proto}" + "\t" + Fore.BLUE + f"{serv['name']}" + "\t" + Fore.YELLOW + f"{res}".expandtabs(30))
     print("\n" + Fore.BLUE + f"{hosts[1]}" + Fore.RED + "      [DONE]")
     return hosts,p,s,proto,serv,res
 
@@ -116,15 +142,8 @@ def parse_os(s4):
     os_class = nested_lookup('osfamily', s4)
     console.print(f'{ os_name[0] }')
     console.print(f'{ os_cpe[0] }')
-    console.print(f'{ os_accuracy[0] } %')
+    console.print(f'{ os_accuracy[0] } %', style='bold red')
 
-"""def debug():
-    print(s1)
-    print(s2)
-    print(s3)
-    print(s4)
-    print(s5)
-    print(s6)"""
 
 def main(h,m):
     global console
@@ -151,6 +170,7 @@ def main(h,m):
         while t3.is_alive():
             anime.run2()
         parse_os(s4)
+
         #scan_dns(h)
         #scan_os(h)
         #manager.create(s1,s2,s4)
